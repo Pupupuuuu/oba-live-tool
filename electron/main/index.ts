@@ -21,6 +21,7 @@ import { getLatestVersion, update } from './update'
 import windowManager from './windowManager'
 import './ipc'
 import semver from 'semver'
+import { startApiServer } from './api'
 import { taskManager } from './managers/TaskManager'
 import { fetchChangelog } from './utils'
 
@@ -118,7 +119,10 @@ async function createWindow() {
   update(win)
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(async () => {
+  await createWindow()
+  startApiServer()
+})
 
 app.on('window-all-closed', async () => {
   win = null

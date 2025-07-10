@@ -43,6 +43,7 @@ export default defineConfig(({ command }) => {
               outDir: 'dist-electron/main',
               rollupOptions: {
                 external: [
+                  'express',
                   ...Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
                 ],
               },
@@ -66,6 +67,7 @@ export default defineConfig(({ command }) => {
               outDir: 'dist-electron/preload',
               rollupOptions: {
                 external: [
+                  'express',
                   ...Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
                 ],
               },
