@@ -22,7 +22,7 @@ interface Message {
   pinTop: boolean
 }
 
-interface AutoMessageConfig extends BaseConfig {
+export interface AutoMessageConfig extends BaseConfig {
   messages: Message[]
   pinTops?: boolean | number[]
   random?: boolean

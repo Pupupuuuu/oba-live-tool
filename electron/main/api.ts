@@ -1,8 +1,9 @@
 import express from 'express'
 import { createLogger } from './logger'
-import { accountManager } from './managers/AccountManager'
 import { contextManager } from './managers/BrowserContextManager'
 import { taskManager } from './managers/TaskManager'
+import type { AutoMessageConfig } from './tasks/autoMessage'
+import { AutoMessageTask } from './tasks/autoMessage'
 import { type AutoPopUpConfig, AutoPopUpTask } from './tasks/autoPopUp'
 
 const logger = createLogger('APIServer')
@@ -10,7 +11,8 @@ const app = express()
 app.use(express.json())
 
 const PORT = process.env.API_PORT || 3000
-const TASK_NAME = '自动弹窗'
+const AUTO_POPUP_TASK_NAME = '自动弹窗'
+const AUTO_MESSAGE_TASK_NAME = '自动发言'
 
 // 启动自动弹窗任务
 app.post('/tasks/auto-popup/start', (req, res) => {
@@ -25,12 +27,12 @@ app.post('/tasks/auto-popup/start', (req, res) => {
     contextManager.getCurrentContext()
 
     taskManager.register(
-      TASK_NAME,
+      AUTO_POPUP_TASK_NAME,
       (page, account) => new AutoPopUpTask(page, account, config),
     )
-    taskManager.startTask(TASK_NAME)
+    taskManager.startTask(AUTO_POPUP_TASK_NAME)
 
-    logger.info('通过 API 启动自动��窗任务')
+    logger.info('通过 API 启动自动弹窗任务')
     res.status(200).json({ message: '自动弹窗任务已启动' })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -42,12 +44,76 @@ app.post('/tasks/auto-popup/start', (req, res) => {
 // 停止自动弹窗任务
 app.post('/tasks/auto-popup/stop', (req, res) => {
   try {
-    taskManager.stopTask(TASK_NAME)
+    taskManager.stopTask(AUTO_POPUP_TASK_NAME)
     logger.info('通过 API 停止自动弹窗任务')
     res.status(200).json({ message: '自动弹窗任务已停止' })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     logger.error(`通过 API 停止自动弹窗任务失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
+// 启动自动发言任务
+app.post('/tasks/auto-message/start', (req, res) => {
+  const config = req.body as AutoMessageConfig
+
+  if (!config || !config.messages || !config.scheduler) {
+    return res.status(400).json({ error: '无效的配置' })
+  }
+
+  try {
+    contextManager.getCurrentContext()
+
+    taskManager.register(
+      AUTO_MESSAGE_TASK_NAME,
+      (page, account) => new AutoMessageTask(page, account, config),
+    )
+    taskManager.startTask(AUTO_MESSAGE_TASK_NAME)
+
+    logger.info('通过 API 启动自动发言任务')
+    res.status(200).json({ message: '自动发言任务已启动' })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 启动自动发言任务失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
+// 停止自动发言任务
+app.post('/tasks/auto-message/stop', (req, res) => {
+  try {
+    taskManager.stopTask(AUTO_MESSAGE_TASK_NAME)
+    logger.info('通过 API 停止自动发言任务')
+    res.status(200).json({ message: '自动发言任务已停止' })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 停止自动发言任务失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
+// 一键刷屏
+app.post('/tasks/auto-message/send-batch', async (req, res) => {
+  const { messages, count } = req.body as { messages: string[]; count: number }
+
+  if (
+    !messages ||
+    !count ||
+    !Array.isArray(messages) ||
+    typeof count !== 'number'
+  ) {
+    return res.status(400).json({ error: '无效的参数' })
+  }
+
+  try {
+    const page = contextManager.getCurrentContext().page
+    await AutoMessageTask.sendBatchMessages(page, messages, count)
+    logger.info('通过 API 执行一键刷屏')
+    res.status(200).json({ message: '一键刷屏任务已执行' })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 执行一键刷屏失败: ${errorMessage}`)
     res.status(500).json({ error: errorMessage })
   }
 })
