@@ -54,6 +54,25 @@ app.post('/tasks/auto-popup/stop', (req, res) => {
   }
 })
 
+// 更新自动弹窗任务配置
+app.post('/tasks/auto-popup/update-config', (req, res) => {
+  const newConfig = req.body as Partial<AutoPopUpConfig>
+
+  if (!newConfig) {
+    return res.status(400).json({ error: '无效的配置' })
+  }
+
+  try {
+    taskManager.updateTaskConfig(AUTO_POPUP_TASK_NAME, newConfig)
+    logger.info('通过 API 更新自动弹窗任务配置')
+    res.status(200).json({ message: '自动弹窗任务配置已更新' })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 更新自动弹窗任务配置失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
 // 启动自动发言任务
 app.post('/tasks/auto-message/start', (req, res) => {
   const config = req.body as AutoMessageConfig

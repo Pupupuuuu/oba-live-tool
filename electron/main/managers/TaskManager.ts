@@ -81,7 +81,7 @@ export class TaskManager {
     }
   }
 
-  updateTaskConfig(taskName: string, newConfig: BaseConfig) {
+  updateTaskConfig(taskName: string, newConfig: Partial<BaseConfig>) {
     const account = accountManager.getActiveAccount()
     const tasks = this.tasks.get(account.id)
     if (tasks) {

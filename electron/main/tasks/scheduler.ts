@@ -14,7 +14,7 @@ export interface BaseConfig {
 export interface Scheduler {
   start: () => void
   stop: () => void
-  updateConfig: (newConfig: BaseConfig) => void
+  updateConfig: (newConfig: Partial<BaseConfig>) => void
   isRunning: boolean
 }
 
@@ -91,7 +91,7 @@ export class TaskScheduler implements Scheduler {
     this.config.onStop?.()
   }
 
-  public updateConfig(newConfig: BaseConfig) {
+  public updateConfig(newConfig: Partial<BaseConfig>) {
     if (newConfig.scheduler) {
       this.config = {
         ...this.config,
