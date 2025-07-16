@@ -12,6 +12,7 @@ import { AutoReplyManager } from './tasks/autoReply/AutoReplyManager'
 import { LiveControlManager } from './tasks/connection/LiveControlManager'
 import { LiveController } from './tasks/controller/LiveController'
 import { replaceVariant, typedIpcMainOn } from './utils'
+import windowManager from './windowManager'
 
 const logger = createLogger('APIServer')
 const app = express()
@@ -247,6 +248,14 @@ app.post('/tasks/live-control/connect', async (req, res) => {
     })
 
     logger.info('通过 API 连接到中控台')
+    const accountId = accountManager.getActiveAccount().id
+    windowManager.send(
+      IPC_CHANNELS.tasks.liveControl.connectedEvent,
+      accountId,
+      accountName,
+      platform,
+      headless ?? false,
+    )
     res.status(200).json({ message: '成功连接到中控台', accountName })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -259,7 +268,12 @@ app.post('/tasks/live-control/connect', async (req, res) => {
 app.post('/tasks/live-control/disconnect', async (req, res) => {
   try {
     const currentContext = contextManager.getCurrentContext()
+    const accountId = accountManager.getActiveAccount().id
     await currentContext.browser.close()
+    windowManager.send(
+      IPC_CHANNELS.tasks.liveControl.disconnectedEvent,
+      accountId,
+    )
     logger.info('通过 API 断开中控台连接')
     res.status(200).json({ message: '中控台连接已断开' })
   } catch (error) {

@@ -21,6 +21,12 @@ export interface IpcChannels {
     accountName: string | null
   } | null
   [IPC_CHANNELS.tasks.liveControl.disconnect]: () => boolean
+  [IPC_CHANNELS.tasks.liveControl.connectedEvent]: (
+    id: string,
+    accountName: string | null,
+    platform: LiveControlPlatform,
+    headless: boolean,
+  ) => void
   [IPC_CHANNELS.tasks.liveControl.disconnectedEvent]: (id: string) => void
 
   // AutoMessage

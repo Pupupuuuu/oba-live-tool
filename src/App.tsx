@@ -39,11 +39,23 @@ import { useUpdateStore } from './hooks/useUpdate'
 
 function useGlobalIpcListener() {
   const { handleComment } = useAutoReply()
-  const { setIsConnected } = useLiveControlStore()
+  const { setIsConnected, setAccountName, setPlatform } = useLiveControlStore()
+  const { setHeadless } = useChromeConfigStore()
   const { setIsRunning: setIsRunningAutoMessage } = useAutoMessageStore()
   const { setIsRunning: setIsRunningAutoPopUp } = useAutoPopUpStore()
   const { setStorageState } = useChromeConfigStore()
   const { toast } = useToast()
+
+  useIpcListener(
+    IPC_CHANNELS.tasks.liveControl.connectedEvent,
+    (id, accountName, platform, headless) => {
+      setIsConnected(id, 'connected')
+      setAccountName(id, accountName)
+      setPlatform(id, platform)
+      setHeadless(id, headless)
+      toast.success('已连接到直播控制台')
+    },
+  )
 
   useIpcListener(
     IPC_CHANNELS.tasks.autoReply.showComment,
