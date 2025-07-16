@@ -46,6 +46,7 @@ export class AutoReplyManager {
     await this.listener?.start()
 
     this.isRunning = true
+    windowManager.send(IPC_CHANNELS.tasks.autoReply.taskStarted, this.config)
   }
 
   stop() {

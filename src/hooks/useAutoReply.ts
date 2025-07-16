@@ -9,6 +9,7 @@ import { matchObject, type StringFilterConfig } from '@/utils/filter'
 import { mergeWithoutArray } from '@/utils/misc'
 import { useAccounts } from './useAccounts'
 import { type ChatMessage, useAIChatStore } from './useAIChat'
+import { useIpcListener } from './useIpc'
 import { useCurrentLiveControl } from './useLiveControl'
 
 type DeepPartial<T> = T extends (...args: unknown[]) => unknown
@@ -461,6 +462,12 @@ export function useAutoReply() {
   }, [store.contexts, currentAccountId])
 
   const { isRunning, isListening, comments, replies, config } = context
+
+  useIpcListener(IPC_CHANNELS.tasks.autoReply.taskStarted, config => {
+    store.updateConfig(currentAccountId, config)
+    store.setIsRunning(currentAccountId, true)
+    store.setIsListening(currentAccountId, 'listening')
+  })
 
   /**
    * 处理关键字回复逻辑

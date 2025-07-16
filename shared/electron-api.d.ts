@@ -51,6 +51,7 @@ export interface IpcChannels {
   [IPC_CHANNELS.tasks.autoReply.stopCommentListener]: () => void
   [IPC_CHANNELS.tasks.autoReply.sendReply]: (replyContent: string) => void
   [IPC_CHANNELS.tasks.autoReply.listenerStopped]: () => void
+  [IPC_CHANNELS.tasks.autoReply.taskStarted]: (config: AutoReplyConfig) => void
   [IPC_CHANNELS.tasks.autoReply.showComment]: (data: {
     comment: DouyinLiveMessage
     accountId: string

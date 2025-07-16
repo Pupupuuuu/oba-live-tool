@@ -31,6 +31,7 @@ export const IPC_CHANNELS = {
       startCommentListener: 'tasks:autoReply:startCommentListener',
       stopCommentListener: 'tasks:autoReply:stopCommentListener',
       listenerStopped: 'tasks:autoReply:listenerStopped',
+      taskStarted: 'tasks:autoReply:taskStarted',
       showComment: 'tasks:autoReply:showComment',
       startAutoReply: 'tasks:autoReply:startAutoReply',
       stopAutoReply: 'tasks:autoReply:stopAutoReply',
