@@ -5,6 +5,10 @@ import { taskManager } from './managers/TaskManager'
 import type { AutoMessageConfig } from './tasks/autoMessage'
 import { AutoMessageTask } from './tasks/autoMessage'
 import { type AutoPopUpConfig, AutoPopUpTask } from './tasks/autoPopUp'
+import type { AutoReplyConfig } from './tasks/autoReply'
+import { AutoReplyManager } from './tasks/autoReply/AutoReplyManager'
+import { LiveController } from './tasks/controller/LiveController'
+import { replaceVariant } from './utils'
 
 const logger = createLogger('APIServer')
 const app = express()
@@ -13,6 +17,7 @@ app.use(express.json())
 const PORT = process.env.API_PORT || 3000
 const AUTO_POPUP_TASK_NAME = '自动弹窗'
 const AUTO_MESSAGE_TASK_NAME = '自动发言'
+const AUTO_REPLY_TASK_NAME = '自动回复'
 
 // 启动自动弹窗任务
 app.post('/tasks/auto-popup/start', (req, res) => {
@@ -133,6 +138,66 @@ app.post('/tasks/auto-message/send-batch', async (req, res) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     logger.error(`通过 API 执行一键刷屏失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
+// 启动自动回复任务
+app.post('/tasks/auto-reply/start', async (req, res) => {
+  const config = req.body as AutoReplyConfig
+
+  if (!config) {
+    return res.status(400).json({ error: '无效的配置' })
+  }
+
+  try {
+    contextManager.getCurrentContext()
+
+    taskManager.register(
+      AUTO_REPLY_TASK_NAME,
+      (page, account) => new AutoReplyManager(page, account, config),
+    )
+    await taskManager.startTask(AUTO_REPLY_TASK_NAME)
+
+    logger.info('通过 API 启动自动回复任务')
+    res.status(200).json({ message: '自动回复任务已启动' })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 启动自动回复任务失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
+// 停止自动回复任务
+app.post('/tasks/auto-reply/stop', (req, res) => {
+  try {
+    taskManager.stopTask(AUTO_REPLY_TASK_NAME)
+    logger.info('通过 API 停止自动回复任务')
+    res.status(200).json({ message: '自动回复任务已停止' })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 停止自动回复任务失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
+// 手动发送回复
+app.post('/tasks/auto-reply/send', async (req, res) => {
+  const { message } = req.body as { message: string }
+
+  if (!message) {
+    return res.status(400).json({ error: '无效的消息' })
+  }
+
+  try {
+    const page = contextManager.getCurrentContext().page
+    const controller = new LiveController(page)
+    await controller.sendMessage(replaceVariant(message))
+    logger.info('通过 API 发送回复')
+    res.status(200).json({ message: '回复已发送' })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 发送回复失败: ${errorMessage}`)
     res.status(500).json({ error: errorMessage })
   }
 })

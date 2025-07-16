@@ -31,7 +31,7 @@
 - **Body**:
   ```json
   {
-    "goodsIds": [1]
+    "goodsIds": [4, 5, 6]
   }
   ```
 
@@ -70,5 +70,54 @@
   {
     "messages": ["666", "主播真棒！"],
     "count": 10
+  }
+  ```
+
+## 自动回复
+
+### 启动自动回复任务
+
+- **URL**: `/tasks/auto-reply/start`
+- **Method**: `POST`
+- **Body**:
+  ```json
+  {
+    "source": "compass",
+    "ws": {
+      "enable": true,
+      "port": 12354
+    },
+    "comment": {
+      "keywordReply": {
+        "enable": true,
+        "rules": [
+          {
+            "keywords": ["价格", "多少钱"],
+            "contents": ["价格在详情页哦", "可以看我们的1号链接"]
+          }
+        ]
+      },
+      "aiReply": {
+        "enable": true,
+        "prompt": "你是一个友好的直播间助手...",
+        "autoSend": false
+      }
+    }
+  }
+  ```
+
+### 停止自动回复任务
+
+- **URL**: `/tasks/auto-reply/stop`
+- **Method**: `POST`
+
+### 手动发送回复
+
+- **URL**: `/tasks/auto-reply/send`
+- **Method**: `POST`
+- **Body**:
+  ```json
+  {
+    "message": "欢迎新来的朋友！"
   }
   ```
