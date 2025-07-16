@@ -77,9 +77,31 @@
 
 ### 启动自动回复任务
 
+启动自动回复任务，开始监听直播间的互动信息并根据配置进行回复。
+
 - **URL**: `/tasks/auto-reply/start`
 - **Method**: `POST`
-- **Body**:
+
+#### 参数说明
+
+- `source` (string, required): 监听信息的来源，决定了能获取到哪些互动信息。
+  - `"control"`: 通过中控台的评论列表获取信息。**仅能监听到评论互动**。
+  - `"compass"`: 通过电商罗盘的直播大屏获取信息。**能监听到包括评论、进入直播间、点赞、关注、下单等更全面的互动信息**。推荐使用此模式。
+- `ws` (object, optional): WebSocket 服务配置。
+  - `enable` (boolean): 是否启用 WebSocket 服务。启用后，所有监听到的互动信息会通过 WebSocket 广播。
+  - `port` (number): WebSocket 服务的端口号。
+- `comment` (object, required): 针对用户评论的回复配置。
+  - `keywordReply` (object): 关键词回复配置。
+    - `enable` (boolean): 是否启用关键词回复。
+    - `rules` (array): 关键词规则列表。
+      - `keywords` (string[]): 触发回复的关键词数组。评论中包含任意一个关键词即会触发。
+      - `contents` (string[]): 回复内容数组。触发后会随机选择一条内容进行回复。
+  - `aiReply` (object): AI 智能回复配置。
+    - `enable` (boolean): 是否启用 AI 回复。当关键词回复未命中时，会使用 AI 回复。
+    - `prompt` (string): 提供给 AI 的系统提示词，用于指导 AI 的行为和回复风格。
+    - `autoSend` (boolean): AI 生成回复后是否自动发送。`false` 则仅在界面上显示预览，可手动发送。
+
+- **Body 示例**:
   ```json
   {
     "source": "compass",

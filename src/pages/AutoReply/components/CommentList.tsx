@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { type Message, useAutoReply } from '@/hooks/useAutoReply'
+import { useIpcListener } from '@/hooks/useIpc'
 import { useCurrentLiveControl } from '@/hooks/useLiveControl'
 import { useToast } from '@/hooks/useToast'
 import { cn } from '@/lib/utils'
@@ -147,7 +148,8 @@ export default function CommentList({
 }: {
   highlight: string | null
 }) {
-  const { comments, isListening, setIsListening, config } = useAutoReply()
+  const { comments, isListening, setIsListening, config, setIsRunning } =
+    useAutoReply()
   const isConnected = useCurrentLiveControl(context => context.isConnected)
   const platform = useCurrentLiveControl(context => context.platform)
   const { toast } = useToast()
@@ -190,6 +192,11 @@ export default function CommentList({
       toast.error('停止监听评论失败')
     }
   }
+
+  useIpcListener(IPC_CHANNELS.tasks.autoReply.listenerStopped, () => {
+    setIsListening('stopped')
+    setIsRunning(false)
+  })
 
   const accountName = useCurrentLiveControl(ctx => ctx.accountName)
 

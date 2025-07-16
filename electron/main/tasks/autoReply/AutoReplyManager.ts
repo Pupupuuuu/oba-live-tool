@@ -1,6 +1,8 @@
 import type { Page } from 'playwright'
+import { IPC_CHANNELS } from 'shared/ipcChannels'
 import { WebSocketService } from '#/services/WebSocketService'
 import { isDev, isMockTest } from '#/utils'
+import windowManager from '#/windowManager'
 import type { AutoReplyConfig } from '.'
 import { CompassAdapter } from './adapters/DouyinCompassAdapter'
 import { ControlPanelAdapter } from './adapters/DouyinControlPanelAdapter'
@@ -51,6 +53,7 @@ export class AutoReplyManager {
     this.wsService?.stop()
     this.isRunning = false
     this.listener = null
+    windowManager.send(IPC_CHANNELS.tasks.autoReply.listenerStopped)
   }
 
   updateConfig() {

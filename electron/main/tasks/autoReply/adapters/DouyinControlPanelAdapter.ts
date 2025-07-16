@@ -51,7 +51,6 @@ export class ControlPanelAdapter extends BaseMessageListener {
   stop(): void {
     this.isRunning = false
     this.page.removeAllListeners('response')
-    throw new Error('Method not implemented.')
   }
 
   private async keepPageRunning() {

@@ -8,7 +8,7 @@ import { LiveController } from '#/tasks/controller/LiveController'
 import { replaceVariant, typedIpcMainHandle } from '#/utils'
 import { currentAccountName } from './utils'
 
-const TASK_NAME = '监听评论'
+const TASK_NAME = '自动回复'
 
 function setupIpcHandlers() {
   typedIpcMainHandle(
