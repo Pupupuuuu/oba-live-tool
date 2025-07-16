@@ -29,7 +29,10 @@ import { useAccounts } from './hooks/useAccounts'
 import { useAutoMessageStore } from './hooks/useAutoMessage'
 import { useAutoPopUpStore } from './hooks/useAutoPopUp'
 import { useAutoReply } from './hooks/useAutoReply'
-import { useChromeConfigStore } from './hooks/useChromeConfig'
+import {
+  useChromeConfigStore,
+  useCurrentChromeConfigActions,
+} from './hooks/useChromeConfig'
 import { useLiveControlStore } from './hooks/useLiveControl'
 import { useToast } from './hooks/useToast'
 import { useUpdateStore } from './hooks/useUpdate'
@@ -129,6 +132,9 @@ function UpdateInfo() {
 function App() {
   const { enabled: devMode } = useDevMode()
   const { accounts, currentAccountId } = useAccounts()
+  const chromeConfig = useChromeConfigStore(state => state.contexts)
+
+  useCurrentChromeConfigActions()
 
   useEffect(() => {
     const account = accounts.find(acc => acc.id === currentAccountId)
@@ -136,6 +142,17 @@ function App() {
       window.ipcRenderer.invoke(IPC_CHANNELS.account.switch, { account })
     }
   }, [accounts, currentAccountId])
+
+  useEffect(() => {
+    const stateToSync = {
+      accounts: accounts.map(acc => ({
+        id: acc.id,
+        name: acc.name,
+        config: chromeConfig[acc.id] || {},
+      })),
+    }
+    window.ipcRenderer.send(IPC_CHANNELS.state.syncToMain, stateToSync)
+  }, [accounts, chromeConfig])
 
   useGlobalIpcListener()
 

@@ -1,4 +1,5 @@
 import express from 'express'
+import { IPC_CHANNELS } from 'shared/ipcChannels'
 import { createLogger } from './logger'
 import { accountManager } from './managers/AccountManager'
 import { contextManager } from './managers/BrowserContextManager'
@@ -10,16 +11,25 @@ import type { AutoReplyConfig } from './tasks/autoReply'
 import { AutoReplyManager } from './tasks/autoReply/AutoReplyManager'
 import { LiveControlManager } from './tasks/connection/LiveControlManager'
 import { LiveController } from './tasks/controller/LiveController'
-import { replaceVariant } from './utils'
+import { replaceVariant, typedIpcMainOn } from './utils'
 
 const logger = createLogger('APIServer')
 const app = express()
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
+
+let syncedState: any = {}
+typedIpcMainOn(IPC_CHANNELS.state.syncToMain, (_, state) => {
+  syncedState = state
+})
 
 const PORT = process.env.API_PORT || 3000
 const AUTO_POPUP_TASK_NAME = '自动弹窗'
 const AUTO_MESSAGE_TASK_NAME = '自动发言'
 const AUTO_REPLY_TASK_NAME = '自动回复'
+
+app.get('/state/accounts', (req, res) => {
+  res.status(200).json(syncedState)
+})
 
 // 启动自动弹窗任务
 app.post('/tasks/auto-popup/start', (req, res) => {

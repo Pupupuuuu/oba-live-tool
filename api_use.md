@@ -4,6 +4,29 @@
 
 ## 打开中控台
 
+### 获取账户配置
+
+在连接到中控台之前，您需要先获取所有账户的配置信息，特别是用于免登录的 `storageState`。
+
+- **URL**: `/state/accounts`
+- **Method**: `GET`
+- **成功响应 (200 OK)**:
+  ```json
+  {
+    "accounts": [
+      {
+        "id": "default",
+        "name": "默认账号",
+        "config": {
+          "path": "C:\path\to\chrome.exe",
+          "storageState": "{\"cookies\":[...],\"origins\":[...]}",
+          "headless": false
+        }
+      }
+    ]
+  }
+  ```
+
 ### 连接到中控台
 
 - **URL**: `/tasks/live-control/connect`
@@ -13,7 +36,7 @@
   {
     "platform": "douyin",
     "headless": true,
-    "chromePath": "C:\\path\\to\\chrome.exe",
+    "chromePath": "C:\path\to\chrome.exe",
     "storageState": "{...}"
   }
   ```

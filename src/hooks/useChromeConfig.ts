@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
+import { IPC_CHANNELS } from 'shared/ipcChannels'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
@@ -139,6 +140,17 @@ export function useCurrentChromeConfigActions() {
   const setStorageState = useChromeConfigStore(state => state.setStorageState)
   const setHeadless = useChromeConfigStore(state => state.setHeadless)
   const currentAccountId = useAccounts(state => state.currentAccountId)
+
+  useEffect(() => {
+    const config = useChromeConfigStore.getState().contexts[currentAccountId]
+    if (!config?.path) {
+      window.ipcRenderer.invoke(IPC_CHANNELS.chrome.getPath).then(path => {
+        if (path) {
+          setPath(currentAccountId, path)
+        }
+      })
+    }
+  }, [currentAccountId, setPath])
 
   return useMemo(
     () => ({
