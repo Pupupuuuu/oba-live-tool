@@ -2,6 +2,41 @@
 
 本文档介绍了如何使用本工具提供的 API 来控制自动化任务。
 
+## 打开中控台
+
+### 连接到中控台
+
+- **URL**: `/tasks/live-control/connect`
+- **Method**: `POST`
+- **Body**:
+  ```json
+  {
+    "platform": "douyin",
+    "headless": true,
+    "chromePath": "C:\\path\\to\\chrome.exe",
+    "storageState": "{...}"
+  }
+  ```
+
+#### 参数说明
+
+- `platform` (string, required): 要连接的直播平台。支持的选项包括：
+  - `douyin`: 抖音小店
+  - `buyin`: 巨量百应
+  - `eos`: 抖音团购
+  - `redbook`: 小红书
+  - `wxchannel`: 视频号
+  - `kuaishou`: 快手小店
+  - `taobao`: 淘宝
+- `headless` (boolean, optional): 是否以无头模式（后台静默运行）启动浏览器。默认为 `true`。
+- `chromePath` (string, optional): 指定的浏览器可执行文件路径。如果未提供，程序将自动查找。
+- `storageState` (string, optional): JSON 格式的字符串，包含了浏览器的登录状态（Cookies, Local Storage等）。提供此参数可以跳过登录步骤。通常在一次成功登录后由程序返回，用户无需手动构造。
+
+### 断开中控台连接
+
+- **URL**: `/tasks/live-control/disconnect`
+- **Method**: `POST`
+
 ## 自动弹窗
 
 ### 启动自动弹窗任务

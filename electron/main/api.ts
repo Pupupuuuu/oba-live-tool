@@ -1,5 +1,6 @@
 import express from 'express'
 import { createLogger } from './logger'
+import { accountManager } from './managers/AccountManager'
 import { contextManager } from './managers/BrowserContextManager'
 import { taskManager } from './managers/TaskManager'
 import type { AutoMessageConfig } from './tasks/autoMessage'
@@ -7,6 +8,7 @@ import { AutoMessageTask } from './tasks/autoMessage'
 import { type AutoPopUpConfig, AutoPopUpTask } from './tasks/autoPopUp'
 import type { AutoReplyConfig } from './tasks/autoReply'
 import { AutoReplyManager } from './tasks/autoReply/AutoReplyManager'
+import { LiveControlManager } from './tasks/connection/LiveControlManager'
 import { LiveController } from './tasks/controller/LiveController'
 import { replaceVariant } from './utils'
 
@@ -198,6 +200,61 @@ app.post('/tasks/auto-reply/send', async (req, res) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     logger.error(`通过 API 发送回复失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
+// 连接到中控台
+app.post('/tasks/live-control/connect', async (req, res) => {
+  const {
+    platform = 'douyin',
+    headless,
+    chromePath,
+    storageState,
+  } = req.body as {
+    platform: LiveControlPlatform
+    headless?: boolean
+    chromePath?: string
+    storageState?: string
+  }
+
+  const manager = new LiveControlManager(platform)
+  if (chromePath) {
+    manager.setChromePath(chromePath)
+  }
+
+  try {
+    const { browser, context, page, accountName } = await manager.connect({
+      headless,
+      storageState,
+    })
+
+    contextManager.setContext(accountManager.getActiveAccount().id, {
+      browser,
+      browserContext: context,
+      page,
+      platform,
+    })
+
+    logger.info('通过 API 连接到中控台')
+    res.status(200).json({ message: '成功连接到中控台', accountName })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 连接到中控台失败: ${errorMessage}`)
+    res.status(500).json({ error: errorMessage })
+  }
+})
+
+// 断开中控台连接
+app.post('/tasks/live-control/disconnect', async (req, res) => {
+  try {
+    const currentContext = contextManager.getCurrentContext()
+    await currentContext.browser.close()
+    logger.info('通过 API 断开中控台连接')
+    res.status(200).json({ message: '中控台连接已断开' })
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error(`通过 API 断开中控台连接失败: ${errorMessage}`)
     res.status(500).json({ error: errorMessage })
   }
 })
