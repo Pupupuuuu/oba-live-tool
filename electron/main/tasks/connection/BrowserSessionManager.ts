@@ -42,10 +42,36 @@ export class BrowserSessionManager {
     storageState?: StorageState,
   ): Promise<BrowserSession> {
     const browser = await this.createBrowser(headless)
-    const context = await browser.newContext(
-      storageState ? { storageState } : undefined,
-    )
+    const context = await browser.newContext({
+      storageState,
+      viewport: null,
+    })
     const page = await context.newPage()
+
+    // 注入脚本以防止页面缩放
+    await page.addInitScript(() => {
+      const onReady = () => {
+        if (!document.body) {
+          return
+        }
+        const observer = new MutationObserver(() => {
+          if (document.body.style.zoom !== '1') {
+            document.body.style.zoom = '1'
+          }
+        })
+        observer.observe(document.body, {
+          attributes: true,
+          attributeFilter: ['style'],
+        })
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onReady)
+      } else {
+        onReady()
+      }
+    })
+
     return { browser, context, page }
   }
 }
