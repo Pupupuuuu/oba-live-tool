@@ -124,6 +124,9 @@ export interface IpcChannels {
 
   // Log
   [IPC_CHANNELS.log]: (message: LogMessage) => void
+
+  // State
+  [IPC_CHANNELS.state.syncToMain]: (state: any) => void
 }
 
 export interface ElectronAPI {
