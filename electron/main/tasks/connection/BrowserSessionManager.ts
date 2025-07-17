@@ -58,6 +58,9 @@ export class BrowserSessionManager {
           if (document.body.style.zoom !== '1') {
             document.body.style.zoom = '1'
           }
+          if (document.body.style.width !== '100%') {
+            document.body.style.width = '100%'
+          }
         })
         observer.observe(document.body, {
           attributes: true,
