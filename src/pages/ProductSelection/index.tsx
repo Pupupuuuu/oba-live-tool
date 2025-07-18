@@ -17,6 +17,10 @@ export default function ProductSelection() {
   const [productId, setProductId] = useState('')
   const { toast } = useToast()
   const isConnected = useCurrentLiveControl(state => state.isConnected)
+  const platform = useCurrentLiveControl(state => state.platform)
+
+  // 定义支持此功能的前端平台列表
+  const supportedPlatforms: LiveControlPlatform[] = ['buyin']
 
   const handleAddProduct = async () => {
     if (!productId.trim()) {
@@ -37,6 +41,9 @@ export default function ProductSelection() {
     }
   }
 
+  const isButtonDisabled =
+    isConnected !== 'connected' || !supportedPlatforms.includes(platform)
+
   return (
     <div className="container py-8 space-y-4">
       <Title title="商品选择" description="通过商品ID添加要操作的商品" />
@@ -56,10 +63,7 @@ export default function ProductSelection() {
               value={productId}
               onChange={e => setProductId(e.target.value)}
             />
-            <Button
-              onClick={handleAddProduct}
-              disabled={isConnected !== 'connected'}
-            >
+            <Button onClick={handleAddProduct} disabled={isButtonDisabled}>
               添加
             </Button>
           </div>
