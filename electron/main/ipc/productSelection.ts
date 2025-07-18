@@ -25,7 +25,7 @@ typedIpcMainHandle(
       await newPage.bringToFront()
       logger.info('选品库页面加载完成')
 
-      const inputSelector = '#rc_select_0'
+      const inputSelector = '#SearchBarWrapper [role="combobox"]'
       const buttonSelector = '#SearchBarWrapper button'
 
       logger.info(`正在等待输入框出现: ${inputSelector}`)
@@ -37,12 +37,25 @@ typedIpcMainHandle(
       await newPage.waitForSelector(buttonSelector, { timeout: 5000 })
       logger.info('搜索按钮已找到，正在点击...')
       await newPage.click(buttonSelector, { force: true })
-      logger.success(`已成功搜索商品ID: ${productId}`)
+      logger.info(`已成功搜索商品ID: ${productId}`)
+
+      // 搜索后等待商品卡片出现
+      const cardSelector = 'div[class*="cardContent"]'
+      logger.info(`等待商品卡片出现: ${cardSelector}`)
+      await newPage.waitForSelector(cardSelector, { timeout: 5000 })
+
+      // 点击“加选品车”
+      const addToCartSelector = 'div[class*="addWindowAndRadio"] button'
+      logger.info(`正在等待“加选品车”按钮: ${addToCartSelector}`)
+      await newPage.waitForSelector(addToCartSelector, { timeout: 5000 })
+      logger.info('正在点击“加选品车”按钮...')
+      await newPage.click(addToCartSelector)
+      logger.success('已成功添加商品到选品车！')
 
       // 注意：这里我们暂时不关闭页面，方便观察结果
       // await newPage.close()
 
-      return `已成功搜索商品ID: ${productId}`
+      return `已成功添加商品ID: ${productId}`
     } catch (error) {
       logger.error('操作失败:', error)
       const screenshotPath = `error_screenshot_${Date.now()}.png`
