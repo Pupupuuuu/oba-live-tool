@@ -5,6 +5,7 @@ import AutoPopUp from '@/pages/AutoPopUp'
 import AutoReply from '@/pages/AutoReply'
 import AutoReplySettings from '@/pages/AutoReply/AutoReplySettings'
 import LiveControl from '@/pages/LiveControl'
+import ProductSelection from '@/pages/ProductSelection'
 import Settings from '@/pages/SettingsPage'
 import App from '../App'
 
@@ -24,6 +25,10 @@ export const router = createHashRouter([
       {
         path: '/auto-popup',
         element: <AutoPopUp />,
+      },
+      {
+        path: '/product-selection',
+        element: <ProductSelection />,
       },
       {
         path: '/settings',

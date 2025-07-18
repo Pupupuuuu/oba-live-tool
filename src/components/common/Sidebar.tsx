@@ -48,6 +48,11 @@ export default function Sidebar() {
       icon: <CarbonBlockStorage className="w-5 h-5" />,
     },
     {
+      id: '/product-selection',
+      name: '商品选择',
+      icon: <CarbonIbmEventAutomation className="w-5 h-5" />,
+    },
+    {
       id: '/auto-reply',
       name: '自动回复',
       isRunning: isAutoReplyRunning,
