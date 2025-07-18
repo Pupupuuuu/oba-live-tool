@@ -50,6 +50,11 @@ export interface IpcChannels {
   ) => void
   [IPC_CHANNELS.tasks.autoPopUp.unregisterShortcuts]: () => void
 
+  // ProductSelection
+  [IPC_CHANNELS.tasks.productSelection.open]: (
+    productId: string,
+  ) => Promise<string | null>
+
   // AutoReply
   [IPC_CHANNELS.tasks.autoReply.startCommentListener]: (
     config: AutoReplyConfig,

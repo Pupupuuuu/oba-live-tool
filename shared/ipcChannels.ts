@@ -21,6 +21,9 @@ export const IPC_CHANNELS = {
       registerShortcuts: 'tasks:autoPopup:registerShortuct',
       unregisterShortcuts: 'tasks:autoPopup:unregisterShortcut',
     },
+    productSelection: {
+      open: 'tasks:productSelection:open',
+    },
     aiChat: {
       chat: 'tasks:aiChat:chat',
       stream: 'tasks:aiChat:stream',

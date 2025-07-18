@@ -5,6 +5,7 @@ import { setupAutoPopUpIpcHandlers } from './autoPopUp'
 import { setupAutoReplyIpcHandlers } from './autoReply'
 import { setupBrowserIpcHandlers } from './browser'
 import { setupLiveControlIpcHandlers } from './connection'
+import './productSelection'
 
 setupLiveControlIpcHandlers()
 setupAIChatIpcHandlers()

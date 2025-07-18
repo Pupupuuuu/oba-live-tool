@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { IPC_CHANNELS } from 'shared/ipcChannels'
 import { Title } from '@/components/common/Title'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,19 +10,31 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { useCurrentLiveControl } from '@/hooks/useLiveControl'
 import { useToast } from '@/hooks/useToast'
 
 export default function ProductSelection() {
   const [productId, setProductId] = useState('')
   const { toast } = useToast()
+  const isConnected = useCurrentLiveControl(state => state.isConnected)
 
-  const handleAddProduct = () => {
+  const handleAddProduct = async () => {
     if (!productId.trim()) {
       toast.error('请输入商品ID')
       return
     }
-    toast.success(`已添加商品ID: ${productId}`)
-    setProductId('')
+    try {
+      const result = await window.ipcRenderer.invoke(
+        IPC_CHANNELS.tasks.productSelection.open,
+        productId.trim(),
+      )
+      toast.success(result || '操作成功完成')
+      setProductId('')
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      toast.error(`操作失败: ${errorMessage}`)
+    }
   }
 
   return (
@@ -43,7 +56,12 @@ export default function ProductSelection() {
               value={productId}
               onChange={e => setProductId(e.target.value)}
             />
-            <Button onClick={handleAddProduct}>添加</Button>
+            <Button
+              onClick={handleAddProduct}
+              disabled={isConnected !== 'connected'}
+            >
+              添加
+            </Button>
           </div>
         </CardContent>
       </Card>
