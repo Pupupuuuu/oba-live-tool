@@ -31,7 +31,7 @@ export class EosProductSelector extends ProductSelectorBase {
       const inputSelector = 'input[placeholder="搜索商家/团购名称"]'
 
       this.logger.info(`正在等待输入框出现: ${inputSelector}`)
-      await frame.waitForSelector(inputSelector, { timeout: 5000 })
+      await frame.waitForSelector(inputSelector, { timeout: 15000 })
       this.logger.info('输入框已找到，正在输入商品名称...')
       await frame.fill(inputSelector, productName)
 
@@ -64,14 +64,28 @@ export class EosProductSelector extends ProductSelectorBase {
       const firstCard = frame.locator(cardSelector).first()
       await firstCard.click()
 
-      this.logger.info('正在等待“加入我的选品库”按钮出现...')
+      // Wait for navigation to complete by waiting for one of the two possible buttons.
+      this.logger.info('等待商品详情加载...')
       const addButton = frame.getByRole('button', { name: '加入我的选品库' })
-      await addButton.waitFor({ state: 'visible', timeout: 10000 })
+      const cancelButton = frame.getByRole('button', { name: '取消加入' })
 
-      this.logger.info('正在点击“加入我的选品库”按钮...')
-      await addButton.click()
+      await Promise.race([
+        addButton.waitFor({ state: 'visible', timeout: 15000 }),
+        cancelButton.waitFor({ state: 'visible', timeout: 15000 }),
+      ])
 
-      return `已成功添加商品: ${productName}`
+      // Now, check which button is actually visible and act accordingly.
+      if (await cancelButton.isVisible()) {
+        this.logger.info('商品已在选品库中，无需重复添加。')
+        return `商品 "${productName}" 已在选品库中。`
+      }
+      if (await addButton.isVisible()) {
+        this.logger.info('找到“加入我的选品库”按钮，正在点击...')
+        await addButton.click()
+        await frame.page().waitForTimeout(1000) // Wait for action to complete
+        return `已成功添加商品: ${productName}`
+      }
+      throw new Error('无法确定商品状态，未找到“加入”或“取消”按钮。')
     } catch (error) {
       this.logger.error('操作失败:', error)
       const screenshotPath = `error_screenshot_eos_${Date.now()}.png`
@@ -80,6 +94,11 @@ export class EosProductSelector extends ProductSelectorBase {
         `已截取错误屏幕快照，保存在项目根目录: ${screenshotPath}`,
       )
       throw new Error('操作失败，请检查URL或页面元素。详情请查看日志和截图。')
+    } finally {
+      if (newPage && !newPage.isClosed()) {
+        await newPage.close()
+        this.logger.info('任务完成，已关闭标签页。')
+      }
     }
   }
 }
