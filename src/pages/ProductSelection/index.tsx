@@ -20,7 +20,7 @@ export default function ProductSelection() {
   const platform = useCurrentLiveControl(state => state.platform)
 
   // 定义支持此功能的前端平台列表
-  const supportedPlatforms: LiveControlPlatform[] = ['buyin']
+  const supportedPlatforms: LiveControlPlatform[] = ['buyin', 'eos']
 
   const handleAddProduct = async () => {
     if (!productId.trim()) {

@@ -1,5 +1,6 @@
 import type { BrowserContext, Page } from 'playwright'
 import { BuyinProductSelector } from './BuyinProductSelector'
+import { EosProductSelector } from './EosProductSelector'
 import type { ProductSelectorBase } from './ProductSelectorBase'
 
 export function getProductSelector(
@@ -10,6 +11,8 @@ export function getProductSelector(
   switch (platform) {
     case 'buyin':
       return new BuyinProductSelector(browserContext, mainPage, platform)
+    case 'eos':
+      return new EosProductSelector(browserContext, mainPage, platform)
     // case 'douyin':
     //   return new DouyinProductSelector(browserContext, mainPage, platform) // 示例
     default:
