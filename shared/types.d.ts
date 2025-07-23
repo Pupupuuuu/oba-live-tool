@@ -10,6 +10,7 @@ type LiveControlPlatform =
   | 'redbook'
   | 'wxchannel'
   | 'kuaishou'
+  | 'kuaishou_group'
   | 'taobao'
 
 type DouyinLiveMessage = {

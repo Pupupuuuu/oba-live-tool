@@ -90,6 +90,7 @@ export function getPopUpStrategy(platform: LiveControlPlatform): PopUpStrategy {
     case 'wxchannel':
       return wxchannelPopUpStrategy
     case 'kuaishou':
+    case 'kuaishou_group':
       return kuaishouPopUpStrategy
     case 'buyin':
     case 'douyin':

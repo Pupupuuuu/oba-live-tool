@@ -1,8 +1,20 @@
+import type { Frame, Page } from 'playwright'
 import * as constants from '#/constants'
 import { createLogger } from '#/logger'
 import { sleep } from '#/utils'
 import { BrowserSessionManager } from './BrowserSessionManager'
 import type { BrowserSession, StorageState } from './types'
+
+async function getTargetFrame(page: Page): Promise<Frame> {
+  const iframeHandle = await page.waitForSelector(
+    'div.sandslash-live-helper-container > iframe',
+  )
+  const frame = await iframeHandle.contentFrame()
+  if (!frame) {
+    throw new Error('无法找到 iframe')
+  }
+  return frame
+}
 
 export class LoginManager {
   private storageState: StorageState
@@ -60,10 +72,20 @@ export class LoginManager {
           timeout: 0,
           waitUntil: 'domcontentloaded',
         }),
-        session.page.waitForSelector(
-          this.loginConstants.isInLiveControlSelector,
-          { timeout: 0 },
-        ),
+        this.platform === 'kuaishou_group'
+          ? (async () => {
+              const frame = await getTargetFrame(session.page)
+              return frame.waitForSelector(
+                this.loginConstants.isInLiveControlSelector,
+                {
+                  timeout: 0,
+                },
+              )
+            })()
+          : session.page.waitForSelector(
+              this.loginConstants.isInLiveControlSelector,
+              { timeout: 0 },
+            ),
       ])
     }
   }
@@ -139,9 +161,19 @@ export class LoginManager {
       await session.page.goto(this.loginConstants.loginUrl)
     }
     // 等待用户登录成功
-    await session.page.waitForSelector(this.loginConstants.isLoggedInSelector, {
-      timeout: 0,
-    })
+    if (this.platform === 'kuaishou_group') {
+      const frame = await getTargetFrame(session.page)
+      await frame.waitForSelector(this.loginConstants.isLoggedInSelector, {
+        timeout: 0,
+      })
+    } else {
+      await session.page.waitForSelector(
+        this.loginConstants.isLoggedInSelector,
+        {
+          timeout: 0,
+        },
+      )
+    }
     // 保存登录状态
     this.storageState = await session.context.storageState()
   }

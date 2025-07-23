@@ -6,6 +6,7 @@ import { sleep } from '#/utils'
 import { abortable } from '#/utils/decorators'
 import { BuyinLiveControlElementFinder } from './finders/BuyinLiveControlElementFinder'
 import { EOSLiveControlElementFinder } from './finders/EOSLiveControlElementFinder'
+import { KuaishouGroupControlElementFinder } from './finders/KuaishouGroupControlElementFinder'
 import { KuaishouLiveControlElementFinder } from './finders/KuaishouLiveControlElementFinder'
 import { RedbookLiveControlElementFinder } from './finders/RedbookLiveControlElementFinder'
 import { TaobaoLiveControlElementFinder } from './finders/TaobaoLiveControlElementFinder'
@@ -31,6 +32,8 @@ function getLiveControlElementFinder(
     case 'buyin':
     case 'douyin':
       return new BuyinLiveControlElementFinder(page)
+    case 'kuaishou_group':
+      return new KuaishouGroupControlElementFinder(page)
   }
 }
 
